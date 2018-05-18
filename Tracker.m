@@ -9,9 +9,9 @@
 %               - this extracts the lat of most rapid intensification
 %               - uses pressure deepening metric based off of this lat
 %
-%  The utility of this tracking algorithm spans any gridded dataset.
+%  The utility of this tracking algorithm will span any gridded dataset.
 %
-%  The code was developed to track low pressure in NRR, but can easily be
+%  The code was developed to track low pressure in NNR, but will be
 %  adapted for any gridded reanalysis/GCM
 % =========================================================================
 %% Closed Lows
