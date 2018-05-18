@@ -15,15 +15,29 @@
 %  adapted for any gridded reanalysis/GCM
 % =========================================================================
 %% Closed Lows
+% =========================================================================
+% Load the gridded sea-level pressure dataset of your choice. Provided here
+% is the NNR 1(2.5deg).
+%
+% This dataset should have timesteps in each row, and across the columns is
+% a vector of gridpoint values. This data should come with latused and 
+% longused variables that correspond to the column indices for each 
+% gridpoint
 
+load('alldata.mat')
+% =========================================================================
+
+% Initialize low centers matrix
 lows_ALL = [];
 counter = 1;
 
 disp('Finding all low pressure centers...')
 
+% Loop through all timesteps
 for timestamps = 1:1:size(alldata,1);
-    %disp(timestamps);
-    %Check all grid points for closed low criteria
+    % disp(timestamps);
+    
+    % Loop through all gridpoints for low centers at that timestep
     for grid_cell = 1:1:size(alldata,2);
         %The only data to loop on are the interior points, leaving 1 grid
         %cell surrounding cells to loop. This checks if it is an
