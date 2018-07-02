@@ -15,8 +15,20 @@
 %  The code was developed to track low pressure in NNR, but will be
 %  adapted for any gridded reanalysis/GCM
 % =========================================================================
-%% Download Data
+%% Download slp Data
+begin_year = 2017;
+end_year = 2017;
 
+%ftp list
+NNR = 'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/slp.'; %ftp for NNR sea-level pressure
+
+%ftp calls
+for year = begin_year:end_year
+    url = strcat(NNR, num2str(year),'.nc');
+    file = strcat('slp.', num2str(year), '.nc');
+    urlwrite(url,file);
+end
+alldata = 0;
 %% Closed Lows
 % =========================================================================
 % Load the gridded sea-level pressure dataset of your choice. Provided here
