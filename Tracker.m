@@ -16,18 +16,33 @@
 %  adapted for any gridded reanalysis/GCM
 % =========================================================================
 %% Download slp Data
+
+%SETTINGS
 begin_year = 2017;
 end_year = 2017;
 
 %ftp list
 NNR = 'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/slp.'; %ftp for NNR sea-level pressure
 
-%ftp calls
+%ftp fetching
 for year = begin_year:end_year
     url = strcat(NNR, num2str(year),'.nc');
-    file = strcat('slp.', num2str(year), '.nc');
+    file = strcat('NNR.slp.', num2str(year), '.nc'); 
     urlwrite(url,file);
 end
+
+clear year
+%read data and store
+for year = begin_year:end_year
+    slp = ncread(['NNR.slp.' num2str(year) '.nc'],'slp');
+    for time = 1:size(slp,3)
+        slp2(time,:) = reshape(slp(:,:,time),[1,size(slp,1)*size(slp,2)]);
+    end
+end
+lat = ncread(['NNR.slp.' num2str(year) '.nc'],'lat');
+lon = ncread(['NNR.slp.' num2str(year) '.nc'],'lon');
+timedata = ncread(['NNR.slp.' num2str(year) '.nc'],'time');
+%delete *.nc
 alldata = 0;
 %% Closed Lows
 % =========================================================================
