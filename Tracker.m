@@ -3,6 +3,7 @@
 %
 %  This tracking algorithm uses a 3 step procedure to identify Bombs
 %  Cyclones
+%       0.) Download data
 %       1.) Defines closed low pressure centers
 %       2.) Stitches low pressures together as storms through time
 %       3.) Identifies from the storms which ones rapidly intensify
@@ -14,6 +15,8 @@
 %  The code was developed to track low pressure in NNR, but will be
 %  adapted for any gridded reanalysis/GCM
 % =========================================================================
+%% Download Data
+
 %% Closed Lows
 % =========================================================================
 % Load the gridded sea-level pressure dataset of your choice. Provided here
