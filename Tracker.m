@@ -18,7 +18,7 @@
 %% Download slp Data
 
 %SETTINGS
-begin_year = 2017;
+begin_year = 2016;
 end_year = 2017;
 
 %ftp list
@@ -35,15 +35,27 @@ clear year
 %read data and store
 for year = begin_year:end_year
     slp = ncread(['NNR.slp.' num2str(year) '.nc'],'slp');
+    times = ncread(['NNR.slp.' num2str(year) '.nc'],'time');
+
     for time = 1:size(slp,3)
-        slp2(time,:) = reshape(slp(:,:,time),[1,size(slp,1)*size(slp,2)]);
+        slp2(time,:) = reshape(flipud(rot90(slp(:,:,time))),1,size(slp,1)*size(slp,2));
     end
+    if year == begin_year
+        alldata = slp2;
+        timedata = times;
+    else
+        alldata = vertcat(alldata,slp2);
+        timedata = vertcat(timedata,times);
+    end
+    clear slp2 times
 end
 lat = ncread(['NNR.slp.' num2str(year) '.nc'],'lat');
 lon = ncread(['NNR.slp.' num2str(year) '.nc'],'lon');
-timedata = ncread(['NNR.slp.' num2str(year) '.nc'],'time');
+
+[LON,LAT] = meshgrid(lon, lat)
+gridtable(:,1) = reshape(LAT,1,size(LAT,1)*size(LAT,2));%latitude
+gridtable(:,2) = reshape(LON,1,size(LON,1)*size(LON,2)); %longitude
 %delete *.nc
-alldata = 0;
 %% Closed Lows
 % =========================================================================
 % Load the gridded sea-level pressure dataset of your choice. Provided here
