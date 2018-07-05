@@ -15,7 +15,8 @@
 %  The code was developed to track low pressure in NNR, but will be
 %  adapted for any gridded reanalysis/GCM
 % =========================================================================
-%% Download slp Data
+%% Download NNR slp Data
+tic
 
 %SETTINGS
 begin_year = 2016;
@@ -23,19 +24,22 @@ end_year = 2017;
 
 %ftp list
 NNR = 'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/slp.'; %ftp for NNR sea-level pressure
+fname = 'NNR_slp'
 
 %ftp fetching
 for year = begin_year:end_year
+    disp(['Downloading year ' num2str(year) '...']);
     url = strcat(NNR, num2str(year),'.nc');
-    file = strcat('NNR.slp.', num2str(year), '.nc'); 
+    file = strcat(fname, '_', num2str(year), '.nc'); 
     urlwrite(url,file);
 end
-
 clear year
+
 %read data and store
 for year = begin_year:end_year
-    slp = ncread(['NNR.slp.' num2str(year) '.nc'],'slp');
-    times = ncread(['NNR.slp.' num2str(year) '.nc'],'time');
+    disp(['Reading and storing data for ' num2str(year) '...']);
+    slp = ncread([fname '_' num2str(year) '.nc'],'slp');
+    times = ncread([fname '_' num2str(year) '.nc'],'time');
 
     for time = 1:size(slp,3)
         slp2(time,:) = reshape(flipud(rot90(slp(:,:,time))),1,size(slp,1)*size(slp,2));
@@ -49,24 +53,33 @@ for year = begin_year:end_year
     end
     clear slp2 times
 end
-lat = ncread(['NNR.slp.' num2str(year) '.nc'],'lat');
-lon = ncread(['NNR.slp.' num2str(year) '.nc'],'lon');
+lat = ncread([fname '_' num2str(year) '.nc'],'lat');
+lon = ncread([fname '_' num2str(year) '.nc'],'lon');
 
-[LON,LAT] = meshgrid(lon, lat)
-gridtable(:,1) = reshape(LAT,1,size(LAT,1)*size(LAT,2));%latitude
+[LON,LAT] = meshgrid(lon, lat);
+gridtable(:,1) = reshape(LAT,1,size(LAT,1)*size(LAT,2)); %latitude
 gridtable(:,2) = reshape(LON,1,size(LON,1)*size(LON,2)); %longitude
-%delete *.nc
+
+%Saving data
+save(fname,'alldata','gridtable','timedata');
+
+%delete download files to clear space
+disp('Cleaning up workspace...');
+
+delete *.nc
+clearvars -except alldata gridtable timedata
+toc
 %% Closed Lows
 % =========================================================================
 % Load the gridded sea-level pressure dataset of your choice. Provided here
 % is the NNR 1(2.5deg).
 %
 % This dataset should have timesteps in each row, and across the columns is
-% a vector of gridpoint values. This data should come with latused and 
-% longused variables that correspond to the column indices for each 
-% gridpoint
+% a vector of gridpoint values. This data should come with a gridtable that 
+% contains a latitude column and longitude column; the rows of gridtable 
+% correspond to the column indices of alldata.
 
-load('alldata.mat')
+load('NNR_slp.mat')
 % =========================================================================
 
 % Initialize low centers matrix
