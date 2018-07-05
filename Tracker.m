@@ -15,7 +15,7 @@
 %  The code was developed to track low pressure in NNR, but will be
 %  adapted for any gridded reanalysis/GCM
 % =========================================================================
-%% Download NNR slp Data
+%% 0.) Download NNR slp Data
 tic
 
 %SETTINGS
@@ -35,6 +35,8 @@ for year = begin_year:end_year
 end
 clear year
 
+counter = 1; %this counter is used to fill a cell array with a slp snapshot of every 6hr step
+
 %read data and store
 for year = begin_year:end_year
     disp(['Reading and storing data for ' num2str(year) '...']);
@@ -43,12 +45,14 @@ for year = begin_year:end_year
 
     for time = 1:size(slp,3)
         slp2(time,:) = reshape(flipud(rot90(slp(:,:,time))),1,size(slp,1)*size(slp,2));
+        alldata{counter,:} = flipud(rot90(slp(:,:,time)));
+        counter = counter + 1;
     end
     if year == begin_year
-        alldata = slp2;
+        alldata2 = slp2;
         timedata = times;
     else
-        alldata = vertcat(alldata,slp2);
+        alldata2 = vertcat(alldata2,slp2);
         timedata = vertcat(timedata,times);
     end
     clear slp2 times
@@ -61,15 +65,15 @@ gridtable(:,1) = reshape(LAT,1,size(LAT,1)*size(LAT,2)); %latitude
 gridtable(:,2) = reshape(LON,1,size(LON,1)*size(LON,2)); %longitude
 
 %Saving data
-save(fname,'alldata','gridtable','timedata');
+save(fname,'alldata','alldata2','gridtable','timedata','LAT','LON');
 
 %delete download files to clear space
 disp('Cleaning up workspace...');
 
 delete *.nc
-clearvars -except alldata gridtable timedata
+clearvars -except alldata alldata2 gridtable timedata LAT LON
 toc
-%% Closed Lows
+%% 1.) Closed Lows
 % =========================================================================
 % Load the gridded sea-level pressure dataset of your choice. Provided here
 % is the NNR 1(2.5deg).
@@ -88,12 +92,14 @@ counter = 1;
 
 disp('Finding all low pressure centers...')
 
-% Loop through all timesteps
+% Loop through all rows (times)
 for timestamps = 1:1:size(alldata,1);
+    
     % disp(timestamps);
     
     % Loop through all gridpoints for low centers at that timestep
     for grid_cell = 1:1:size(alldata,2);
+        
         %The only data to loop on are the interior points, leaving 1 grid
         %cell surrounding cells to loop. This checks if it is an
         %interior point
