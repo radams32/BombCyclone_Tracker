@@ -92,7 +92,81 @@ counter = 1;
 
 disp('Finding all low pressure centers...')
 
-% Loop through all rows (times)
+%==========================================================================
+% NEW CODE FOR LOW PRESSURE CENTERS (OLD CODE FOUND JUST BELOW)
+
+%loop through timesteps
+for i = 1:1:size(alldata,1)
+    %loop through rows (latitude)
+    for ii = 1:1:size(LAT,1)
+        flag = 0;
+        %loop through columns (longitude)
+        for iii = 1:1:size(LON,2)
+            if flag == 1
+                break
+            end
+            %Check if at poles, simple routine to check if pressure is lowest
+            if LAT(ii,iii)==90 || LAT(ii,iii) == -90
+                if sum(alldata{i,1}(ii,iii)<alldata{i,1}(ii-(LAT(ii,iii)/(-90)),:)) == size(LON,2)
+                
+                    %Document and store the low center data
+                    latitude = LAT(ii,iii);
+                    longitude = LON(ii,iii);
+                    pressure = alldata{i,1}(ii,iii);
+                    uni_time = timedata(i,1);
+                    lows_ALL(counter,:) = [latitude, longitude, pressure, uni_time];%, month, day, year, time];
+                    counter = counter + 1;
+                    flag = 1;
+                end
+                continue
+            end
+            
+            %Check if at 0 or 360 degrees, define neighbor values
+            if LON(ii,iii) == 0 & LAT(ii,iii)<90 & LAT(ii,iii)>-90
+            NW = alldata{i,1}(ii-1,end);
+            W = alldata{i,1}(ii,end);
+            SW = alldata{i,1}(ii+1,end);
+            NE = alldata{i,1}(ii-1,iii+1);
+            E = alldata{i,1}(ii,iii+1);
+            SE = alldata{i,1}(ii+1,iii+1);
+            N = alldata{i,1}(ii-1,iii);
+            S = alldata{i,1}(ii+1,iii);
+            elseif LON(ii,iii) == 357.5 & LAT(ii,iii)<90 & LAT(ii,iii)>-90
+            NW = alldata{i,1}(ii-1,iii-1);
+            W = alldata{i,1}(ii,iii-1);
+            SW = alldata{i,1}(ii+1,iii-1);
+            NE = alldata{i,1}(ii-1,1);
+            E = alldata{i,1}(ii,1);
+            SE = alldata{i,1}(ii+1,1);
+            N = alldata{i,1}(ii-1,iii);
+            S = alldata{i,1}(ii+1,iii);
+            else
+            NW = alldata{i,1}(ii-1,iii-1);
+            W = alldata{i,1}(ii,iii-1);
+            SW = alldata{i,1}(ii+1,iii-1);
+            NE = alldata{i,1}(ii-1,iii+1);
+            E = alldata{i,1}(ii,iii+1);
+            SE = alldata{i,1}(ii+1,iii+1);
+            N = alldata{i,1}(ii-1,iii);
+            S = alldata{i,1}(ii+1,iii);
+            end
+            
+            %check if central grid point is lower than queens neighbors
+            if sum(alldata{i,1}(ii,iii)<[NW,W,SW,S,SE,E,NE,N])== 8
+                %Document and store the low center data
+                latitude = LAT(ii,iii);
+                longitude = LON(ii,iii);
+                pressure = alldata{i,1}(ii,iii);
+                uni_time = timedata(i,1);
+                lows_ALL(counter,:) = [latitude, longitude, pressure, uni_time];%, month, day, year, time];
+                counter = counter + 1;
+                continue
+            end
+        end
+    end
+end
+%==========================================================================
+%% Loop through all rows (times)
 for timestamps = 1:1:size(alldata,1);
     
     % disp(timestamps);
