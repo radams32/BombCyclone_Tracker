@@ -26,6 +26,9 @@ end_year = 2017;
 NNR = 'ftp://ftp.cdc.noaa.gov/Datasets/ncep.reanalysis/surface/slp.'; %ftp for NNR sea-level pressure
 fname = 'NNR_slp'
 
+%resolutions
+resolution = 2.5;
+
 %ftp fetching
 for year = begin_year:end_year
     disp(['Downloading year ' num2str(year) '...']);
@@ -212,7 +215,7 @@ end
 disp('Stitching low pressures together for storm data...')
 
 cyclone_duration = 1; %this value will count the length of the current low pressure system
-DegDis = 7.5; %degree displacement for successive 6hrly timestamps, increments of 2.5deg
+DegDis = 7.5; %degree displacement for successive 6hrly timestamps
 cyclone_counter = 1; %number of cyclones. Increments as it finds new cyclones
 Cyclones = {}; %cell array that houses all of the cyclones
 
@@ -233,7 +236,7 @@ for lows = 1:1:size(lows_ALL,1)
             %disp([time1, time2])
             lat_disp = lows_ALL(cc+ccc,1)-lows_ALL(cc,1);
             long_disp = lows_ALL(cc+ccc,2)-lows_ALL(cc,2);
-            if (time2 - time1 == 0.25) && ((lat_disp <= DegDis && lat_disp >= -2.5) && (long_disp <= DegDis && long_disp >= -2.5));
+            if (time2 - time1 == 6) && ((abs(lat_disp) <= DegDis) && (abs(long_disp) <= DegDis));
                 Cyclones{cyclone_counter,1}(cyclone_duration,:) = lows_ALL(cc+ccc,:);
                 cc = cc+ccc;
                 %disp('cc is equal to...')
