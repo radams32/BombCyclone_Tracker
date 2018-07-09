@@ -229,7 +229,9 @@ for lows = 1:1:size(lows_ALL,1)
 
     if cyclone_duration > 1
         ccc = 1;
-        for checks = 1:1:50;
+        
+        %checks through all lows to see if they belong to current 'lows'
+        for checks = 1:1:size(lows_ALL,1)-lows
             %disp(checks)
             time1 = lows_ALL(cc,4);
             time2 = lows_ALL(cc+ccc,4);
@@ -269,8 +271,7 @@ for cc = 1:1:size(Cyclones,1)
     %loop for each timestep of each cyclone
     if duration > 1
         for cd = 1:1:duration-1
-            %disp('Duration')
-            %disp(cd)
+            
             %if the storm lasted less than 4 timesteps then just consider the
             %whole period...else, only consider 24hr windows
             if (duration - cd < 4)
@@ -279,14 +280,13 @@ for cc = 1:1:size(Cyclones,1)
                 press_diffs(cd,1) = Cyclones{cc,1}(cd,3) - min(Cyclones{cc,1}(cd+1:cd+4,3));    
             end
         end
+        
         %find the maximum pressure fall for whole storm and also its index in
         %the variable press_diffs
         [MM,II] = max(press_diffs);
     
         %convert the latitude of the cyclone at the time associated with II
         rad = deg2rad(Cyclones{cc,1}(II,1));
-        %disp(press_diffs)
-        %disp(press_diffs)
     
         press_diffs = [];
         %calculate if the max pressure fall is greater than Bergeron criteria
