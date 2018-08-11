@@ -221,10 +221,26 @@ Cyclones = {}; %cell array that houses all of the cyclones
 
 for lows = 1:1:size(lows_ALL,1)
     cc = lows;
-    %disp(lows);
-    if cyclone_duration == 1
-        Cyclones{cyclone_counter,1}(cyclone_duration,:) = lows_ALL(lows,:);
-        cyclone_duration = cyclone_duration + 1;
+    disp(lows);
+    
+    %write out very first low as very first cyclone, increment duration and
+    %see if it has a trajectory
+    if lows == 1;
+       Cyclones{cyclone_counter,1}(cyclone_duration,:) = lows_ALL(lows,:); 
+       cyclone_duration = cyclone_duration + 1;
+    else
+        %Here we have to check to see if subsequent
+        %ones are already part of trajectories added to Cyclones. This
+        %helps with overcounting issues.
+        cyc_checker = arrayfun(@(col) vertcat(Cyclones{:, col}), 1:size(Cyclones, 2), 'UniformOutput', false);
+        if ismember(lows_ALL(lows,:),cyc_checker{1,1},'rows')== 1
+            %exit for loop and go onto next low if it exists already in the
+            %Cyclones dataset
+            continue
+        else
+            Cyclones{cyclone_counter,1}(cyclone_duration,:) = lows_ALL(lows,:); 
+            cyclone_duration = cyclone_duration + 1;
+        end
     end
 
     if cyclone_duration > 1
@@ -238,7 +254,13 @@ for lows = 1:1:size(lows_ALL,1)
             %disp([time1, time2])
             lat_disp = lows_ALL(cc+ccc,1)-lows_ALL(cc,1);
             long_disp = lows_ALL(cc+ccc,2)-lows_ALL(cc,2);
-            if (time2 - time1 == 6) && ((abs(lat_disp) <= DegDis) && (abs(long_disp) <= DegDis));
+            
+            %this makes a matrix where it checks if certain lows are
+            %already documented in Cyclones file
+            
+            cyc_checker = arrayfun(@(col) vertcat(Cyclones{:, col}), 1:size(Cyclones, 2), 'UniformOutput', false);
+            
+            if (time2 - time1 == 6) && ((abs(lat_disp) <= DegDis) && (abs(long_disp) <= DegDis)) && ~ismember(lows_ALL(cc+ccc,:),cyc_checker{1,1},'rows')==1;
                 Cyclones{cyclone_counter,1}(cyclone_duration,:) = lows_ALL(cc+ccc,:);
                 cc = cc+ccc;
                 %disp('cc is equal to...')
